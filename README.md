@@ -1,23 +1,28 @@
-# 🎮 Gaming Vault - Frontend
+# 🎮 Gaming Vault: Full-Stack Discovery App
 
-This is the mobile-first user interface for the **Gaming Vault** project. It allows users to search for video games, view high-quality covers, and watch trailers through an interactive flip-card system.
+This is a professional gaming library application that allows users to explore titles using the **IGDB API**, manage a personal collection, and watch official trailers via **YouTube**.
 
-## ✨ Features
-- **Mobile-First Design:** Optimized for smartphones with a 2-column grid.
-- **Interactive Flip-Cards:** Tap any game to reveal its description, release year, and trailer button.
-- **YouTube Integration:** Integrated video player modal to watch trailers without leaving the app.
-- **Zero Zoom Input:** Custom search bar configured to prevent mobile auto-zoom for a smoother experience.
+## 📱 Project Overview
+The application is designed with a **Mobile-First** approach, featuring a high-performance interactive UI with 3D flip-cards and a responsive video player.
 
-## 🛠️ Built With
-- **React 18**
-- **TypeScript**
-- **Vite** (for lightning-fast HMR)
-- **Axios** (for API communication)
+## 📂 Project Structure
+- **`/vault-backend`**: Node.js & TypeScript server handling OAuth2 authentication with Twitch/IGDB and metadata processing.
+- **`/vault-frontend`**: React & Vite application optimized for mobile browsers with zero-zoom search and fluid animations.
 
-## 🚀 Setup
-1. Navigate to this folder: `cd vault-frontend`
-2. Install dependencies: `npm install`
-3. Run in dev mode: `npm run dev -- --host` (to view it on your mobile device)
+## 🛠️ Technology Stack
+- **Backend:** Node.js, Express, TypeScript, Axios.
+- **Frontend:** React 18, Vite, TypeScript, CSS3 (Flexbox/Grid).
+- **APIs:** IGDB (Twitch), YouTube Data API v3.
 
-## 👤 Author
-Developed by **Tox** as an original full-stack project.
+## 🔑 Setup & Environment Variables
+Each part of the project requires its own setup. You must create a `.env` file in the **backend** folder with:
+- `YOUTUBE_API_KEY`
+- `IGDB_CLIENT_ID`
+- `IGDB_CLIENT_SECRET`
+
+## 🚀 How to Run
+1. **Backend:** `cd vault-backend && npm install && npm run dev`
+2. **Frontend:** `cd vault-frontend && npm install && npm run dev -- --host`
+
+---
+*Developed by **Tox** as an original full-stack implementation.*
