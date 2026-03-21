@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { IgdbService } from "../services/igdb.service";
 import { YoutubeService } from "../services/youtube.service";
-import { Game } from "../models/game.model";
+import { DynamoService } from "../services/dynamo.service";
+import { Game, GameStatus } from "../models/game.model";
 
-let gamesDB: Game[] = [];
+const VALID_STATUSES: GameStatus[] = ['Pendiente', 'Jugando', 'Jugado', 'Abandonado'];
 
 export const searchGames = async (req: Request, res: Response) => {
   const query = req.query.query as string;
@@ -27,7 +28,7 @@ export const addGame = async (req: Request, res: Response) => {
   }
 
   try {
-    const games = await IgdbService.searchById(Number(externalId)); // Forzamos a que sea número
+    const games = await IgdbService.searchById(Number(externalId));
     const gameData = games[0];
 
     if (!gameData) return res.status(404).json({ error: "Game not found in IGDB" });
@@ -42,11 +43,12 @@ export const addGame = async (req: Request, res: Response) => {
       description: gameData.short_description,
       platforms: [gameData.platform],
       youtubeVideoId: trailerId,
-      addedBy: addedBy,
-      createdAt: new Date().toISOString()
+      addedBy,
+      createdAt: new Date().toISOString(),
+      status: 'Pendiente',
     };
 
-    gamesDB.push(newGame);
+    await DynamoService.putGame(newGame);
     return res.status(201).json(newGame);
   } catch (error) {
     console.error("❌ Error adding game from IGDB:", error);
@@ -54,12 +56,42 @@ export const addGame = async (req: Request, res: Response) => {
   }
 };
 
-export const getGames = (req: Request, res: Response) => res.json(gamesDB);
+export const getGames = async (req: Request, res: Response) => {
+  const raw = req.query.user;
+  const filterByUser = typeof raw === 'string' ? raw : undefined;
+  try {
+    const games = await DynamoService.getAllGames(filterByUser);
+    return res.json(games);
+  } catch (error) {
+    console.error("❌ Error fetching games:", error);
+    return res.status(500).json({ error: "Failed to fetch games from Vault" });
+  }
+};
 
-export const deleteGame = (req: Request, res: Response) => {
-  const { id } = req.params;
-  const initialLength = gamesDB.length;
-  gamesDB = gamesDB.filter(game => game.id !== id);
-  if (gamesDB.length === initialLength) return res.status(404).json({ error: "Game not found" });
-  return res.status(204).send();
+export const updateStatus = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  const { status } = req.body;
+
+  if (!VALID_STATUSES.includes(status)) {
+    return res.status(400).json({ error: `status must be one of: ${VALID_STATUSES.join(', ')}` });
+  }
+
+  try {
+    await DynamoService.updateStatus(id, status);
+    return res.json({ id, status });
+  } catch (error) {
+    console.error("❌ Error updating status:", error);
+    return res.status(500).json({ error: "Failed to update status" });
+  }
+};
+
+export const deleteGame = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  try {
+    await DynamoService.deleteGame(id);
+    return res.status(204).send();
+  } catch (error) {
+    console.error("❌ Error deleting game:", error);
+    return res.status(500).json({ error: "Failed to delete game" });
+  }
 };

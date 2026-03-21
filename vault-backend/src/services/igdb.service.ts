@@ -2,15 +2,18 @@ import axios from 'axios';
 
 export class IgdbService {
   private static accessToken: string | null = null;
+  private static tokenExpiresAt: number = 0;
   private static clientId = process.env.IGDB_CLIENT_ID;
   private static clientSecret = process.env.IGDB_CLIENT_SECRET;
 
   private static async getAccessToken() {
-    if (this.accessToken) return this.accessToken;
+    if (this.accessToken && Date.now() < this.tokenExpiresAt) return this.accessToken;
     const response = await axios.post(
       `https://id.twitch.tv/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`
     );
     this.accessToken = response.data.access_token;
+    // expires_in viene en segundos, restamos 60s de margen
+    this.tokenExpiresAt = Date.now() + (response.data.expires_in - 60) * 1000;
     return this.accessToken;
   }
 

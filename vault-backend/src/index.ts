@@ -1,11 +1,10 @@
 import dotenv from "dotenv";
-dotenv.config(); // 👈 ¡ESTA ES LA MAGIA QUE CARGA TU API KEY!
+dotenv.config();
 
 import app from "./app";
+import { env } from "./config/env";
 
-const PORT = 3000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Vault Server is LIVE at http://localhost:${PORT}`);
+app.listen(env.PORT, () => {
+  console.log(`🚀 Vault Server is LIVE at http://localhost:${env.PORT}`);
   console.log(`Press CTRL+C to stop`);
 });

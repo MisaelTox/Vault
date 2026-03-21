@@ -1,14 +1,24 @@
 import axios from 'axios';
-import type { Game, GameSearchResponse } from '../types/game'; // Añadimos la palabra 'type'
+import type { Game, GameSearchResponse } from '../types/game';
 
 const api = axios.create({
-  baseURL: 'http://192.168.0.21:3000',
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 export const vaultApi = {
-  searchGames: (query: string) => api.get<GameSearchResponse[]>(`/games/search?query=${query}`),
-  getVault: () => api.get<Game[]>(`/games`),
-  addToVault: (externalId: number, addedBy: string) => 
+  // Auth
+  login: (username: string, pin: string) =>
+    api.post<{ username: string }>('/auth/login', { username, pin }),
+
+  // Juegos
+  searchGames: (query: string) =>
+    api.get<GameSearchResponse[]>(`/games/search?query=${query}`),
+  getVault: (filterByUser?: string) =>
+    api.get<Game[]>(`/games${filterByUser ? `?user=${filterByUser}` : ''}`),
+  addToVault: (externalId: number, addedBy: string) =>
     api.post<Game>('/games', { externalId, addedBy }),
-  deleteGame: (id: string) => api.delete(`/games/${id}`),
+  updateStatus: (id: string, status: string) =>
+    api.patch(`/games/${id}/status`, { status }),
+  deleteGame: (id: string) =>
+    api.delete(`/games/${id}`),
 };

@@ -1,15 +1,20 @@
-import express from "express";
-import cors from "cors"; // 1. Importa esto
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import gameRoutes from "./routes/game.routes";
-import dotenv from "dotenv";
-
-dotenv.config();
+import authRoutes from "./routes/auth.routes";
+import { env } from "./config/env";
 
 const app = express();
 
-app.use(cors()); // 2. ¡ESTA LÍNEA ES LA SOLUCIÓN! (Habilita el acceso desde cualquier origen)
+app.use(cors({ origin: env.FRONTEND_URL }));
 app.use(express.json());
 
+app.use("/auth", authRoutes);
 app.use("/games", gameRoutes);
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error("❌ Unhandled error:", err.message);
+  res.status(500).json({ error: "Internal server error" });
+});
 
 export default app;

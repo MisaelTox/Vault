@@ -1,3 +1,5 @@
+export type GameStatus = 'Pendiente' | 'Jugando' | 'Jugado' | 'Abandonado';
+
 export interface Game {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export interface Game {
   platforms: string[];
   youtubeVideoId: string;
   addedBy: string;
+  status: GameStatus;
 }
 
 export interface GameSearchResponse {
