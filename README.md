@@ -1,68 +1,154 @@
-<h1 align="center">☁️ Hi, I'm Misael — Cloud Engineer & DevOps Enthusiast ☁️</h1>
+# 🎮 Vault — Game Discovery App
 
-<p align="center">
-🎓 Sociology graduate from <strong>Metropolitan Autonomous University (UAM)</strong><br>
-💼 Former digital marketing professional, now specializing in <strong>Cloud Infrastructure</strong> and <strong>Automation</strong>.<br>
-🔧 Focused on scalable, secure, and cost-efficient solutions in AWS environments.
-</p>
+A full-stack game discovery and personal library app built with React, Node.js, and deployed on AWS with a fully automated CI/CD pipeline.
+
+> App design by **Carlos Almagro (Jedis)**. Infrastructure & DevOps by [Misael Tóxcatl (Tox)](https://github.com/MisaelTox).
 
 ---
 
-### 🧠 Technical Focus
-- ☁️ **Cloud Computing (AWS):** EC2, S3, IAM, RDS, CloudWatch  
-- 🧩 **Infrastructure as Code:** Terraform, AWS CDK  
-- 🐳 **Containers & DevOps:** Docker, CI/CD fundamentals  
-- 🐍 **Programming:** Python for automation and data handling  
-- 💾 **Databases:** SQL / SQLite  
-- 💻 **Systems:** Linux CLI, Git, Bash scripting  
+## 📱 What It Does
+
+Vault lets you search for games using the **IGDB API**, manage a personal collection, and watch official trailers via the **YouTube Data API v3**. The UI is mobile-first with 3D flip-cards and a responsive video player.
 
 ---
 
-### ⚙️ Tech Stack
-<p align="left">
-  <a href="https://aws.amazon.com" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" alt="aws" width="45" height="45"/>
-  </a>
-  <a href="https://www.terraform.io/" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/terraform/terraform-original-wordmark.svg" alt="terraform" width="45" height="45"/>
-  </a>
-  <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="45" height="45"/>
-  </a>
-  <a href="https://www.python.org" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="45" height="45"/>
-  </a>
-  <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linux/linux-original.svg" alt="linux" width="45" height="45"/>
-  </a>
-  <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="git" width="45" height="45"/>
-  </a>
-</p>
+## 🏗️ Architecture
+
+```
+User
+ │
+ ▼
+Elastic IP
+ │
+ ▼
+EC2 t2.micro (Ubuntu 24.04)
+ │
+ ▼
+┌─────────────────────────────┐
+│         Docker Compose      │
+│                             │
+│  ┌──────────┐               │
+│  │  Nginx   │ :80           │
+│  └────┬─────┘               │
+│       │                     │
+│  ┌────▼─────┐ ┌──────────┐  │
+│  │ Frontend │ │ Backend  │  │
+│  │  :80     │ │  :3000   │  │
+│  └──────────┘ └────┬─────┘  │
+└───────────────────┼─────────┘
+                    │
+         ┌──────────┴──────────┐
+         ▼                     ▼
+      IGDB API           YouTube API
+   (Twitch OAuth2)    (Data API v3)
+```
+
+### AWS Resources
+
+| Resource | Details |
+|---|---|
+| EC2 | t2.micro — Ubuntu 24.04 (Free Tier) |
+| Elastic IP | Fixed public IP — survives reboots |
+| Security Group | Inbound: 80 (HTTP), 22 (SSH) |
 
 ---
 
-### 📊 GitHub Stats
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Misael&layout=compact&theme=tokyonight" alt="Top Languages" height="160"/>
-  <img src="https://github-readme-stats.vercel.app/api?username=Misael&show_icons=true&theme=tokyonight" alt="GitHub Stats" height="160"/>
-</p>
+## ⚙️ CI/CD Pipeline
+
+Every push to `main` triggers an automated deploy via GitHub Actions:
+
+```
+git push origin main
+        │
+        ▼
+GitHub Actions (ubuntu-latest)
+        │
+        ▼
+SSH into EC2 (appleboy/ssh-action)
+        │
+        ▼
+git pull origin main
+        │
+        ▼
+docker compose up --build -d
+        │
+        ▼
+App live on EC2
+```
+
+### GitHub Secrets required
+
+| Secret | Description |
+|---|---|
+| `EC2_HOST` | Elastic IP of the EC2 instance |
+| `EC2_USER` | SSH user (`ubuntu`) |
+| `EC2_SSH_KEY` | Private key for SSH access |
+| `ENV_FILE` | Contents of `vault-backend/.env` |
 
 ---
 
-### 🌐 Connect with Me
-<p align="left">
-  <a href="https://www.linkedin.com/in/tu-linkedin/" target="_blank">
-    <img align="center" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" height="30" width="30" />
-  </a>
-  &nbsp;
-  <a href="mailto:tuemail@example.com" target="_blank">
-    <img align="center" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="email" height="30" width="30" />
-  </a>
-</p>
+## 🛠️ Tech Stack
+
+**Application**
+- Backend: Node.js, Express, TypeScript
+- Frontend: React 18, Vite, TypeScript, CSS3
+- APIs: IGDB (Twitch OAuth2), YouTube Data API v3
+
+**Infrastructure & DevOps**
+- Cloud: AWS EC2, Elastic IP, Security Groups
+- IaC: Terraform
+- Containers: Docker, Docker Compose, Nginx
+- CI/CD: GitHub Actions
 
 ---
 
-<p align="center">
-  <em>“Infrastructure as Code isn’t just automation — it’s reproducibility, reliability, and learning in motion.”</em>
-</p>
+## 🚀 Infrastructure Setup (Terraform)
+
+```bash
+cd terraform
+terraform init
+terraform apply
+# Enter your AWS key pair name when prompted
+```
+
+Terraform provisions:
+- EC2 t2.micro with Docker pre-installed via `user_data`
+- Security Group with ports 80 and 22
+- Elastic IP attached to the instance
+
+---
+
+## 🔑 Environment Variables
+
+Create `vault-backend/.env` with:
+
+```
+YOUTUBE_API_KEY=
+IGDB_CLIENT_ID=
+IGDB_CLIENT_SECRET=
+```
+
+---
+
+## 📂 Project Structure
+
+```
+vault/
+├── terraform/          # AWS infrastructure (IaC)
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── user_data.sh
+├── .github/
+│   └── workflows/
+│       └── deploy.yml  # CI/CD pipeline
+├── nginx/
+│   └── nginx.conf      # Reverse proxy config
+├── vault-backend/      # Express + TypeScript API
+├── vault-frontend/     # React + Vite UI
+└── docker-compose.yml
+```
+
+---
+
+*Built by [Tox](https://github.com/MisaelTox) & Carlos Almagro (Jedis)*
