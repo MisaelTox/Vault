@@ -55,7 +55,7 @@ EC2 t2.micro (Ubuntu 24.04)
 
 ## ⚙️ CI/CD Pipeline
 
-Every push to `main` triggers an automated deploy via GitHub Actions:
+Every push to `main` runs CI (backend type check + frontend build). Deploys to EC2 are triggered manually via `workflow_dispatch`:
 
 ```
 git push origin main
