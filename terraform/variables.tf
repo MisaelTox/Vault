@@ -20,3 +20,8 @@ variable "project_name" {
   type        = string
   default     = "vault"
 }
+
+variable "admin_cidr" {
+  description = "CIDR allowed to SSH into the instance (e.g. your IP as x.x.x.x/32)"
+  type        = string
+}
